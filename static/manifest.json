@@ -1,0 +1,28 @@
+{
+  "name": "날담",
+  "short_name": "날담",
+  "description": "오늘이라는 날의 이야기 — 달력, 역사, 하늘과 계절을 담는 날담",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#fffaf0",
+  "icons": [
+    {
+      "src": "naldam-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "naldam-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "naldam-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
