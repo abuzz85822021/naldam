@@ -1441,16 +1441,9 @@ a .day-number.holiday{
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
-    /* 모바일 월 이동: Streamlit 버튼을 그대로 쓰되 한 줄 3등분으로 고정
-       -> 링크 전체 페이지 재로딩을 피해서 검은 깜빡임을 크게 줄임 */
-    .st-key-month_nav{
-        display:block !important;
-        width:100% !important;
-        max-width:100% !important;
-        overflow:hidden !important;
-        margin:0 0 8px 0 !important;
-    }
-    .st-key-month_nav [data-testid="stHorizontalBlock"]{
+    /* 모바일 월 이동: 실제 Streamlit 버튼 3개를 한 줄 3등분으로 고정.
+       링크 이동이 아니므로 브라우저 전체 재로딩/검은 깜빡임을 피한다. */
+    [data-testid="stHorizontalBlock"]:has(.month-nav-marker){
         display:flex !important;
         flex-direction:row !important;
         flex-wrap:nowrap !important;
@@ -1458,19 +1451,21 @@ a .day-number.holiday{
         width:100% !important;
         max-width:100% !important;
         align-items:stretch !important;
+        overflow:visible !important;
+        margin:0 0 8px 0 !important;
     }
-    .st-key-month_nav [data-testid="column"]{
+    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) > [data-testid="stColumn"]{
         width:calc((100% - 12px) / 3) !important;
         max-width:calc((100% - 12px) / 3) !important;
         min-width:0 !important;
         flex:0 0 calc((100% - 12px) / 3) !important;
     }
-    .st-key-month_nav [data-testid="stButton"],
-    .st-key-month_nav .stButton{
+    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) [data-testid="stButton"],
+    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) .stButton{
         width:100% !important;
         min-width:0 !important;
     }
-    .st-key-month_nav .stButton > button{
+    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) .stButton > button{
         width:100% !important;
         min-width:0 !important;
         min-height:40px !important;
@@ -1480,6 +1475,9 @@ a .day-number.holiday{
         white-space:nowrap !important;
         touch-action:manipulation;
         -webkit-tap-highlight-color:transparent;
+    }
+    .month-nav-marker{
+        display:none !important;
     }
     .mobile-month-nav{
         display:none !important;
@@ -1799,6 +1797,8 @@ with st.container(key="month_nav"):
 
     with n1:
 
+        st.markdown('<span class="month-nav-marker"></span>', unsafe_allow_html=True)
+
         if st.button(
             "‹ 이전",
             use_container_width=True,
@@ -1815,6 +1815,7 @@ with st.container(key="month_nav"):
             st.session_state.month = month
 
             st.query_params.clear()
+            st.rerun()
 
     with n2:
 
@@ -1841,6 +1842,7 @@ with st.container(key="month_nav"):
             month = today.month
 
             st.query_params.clear()
+            st.rerun()
 
     with n3:
 
@@ -1860,6 +1862,7 @@ with st.container(key="month_nav"):
             st.session_state.month = month
 
             st.query_params.clear()
+            st.rerun()
 
 
 # =========================================================
