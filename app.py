@@ -1328,7 +1328,7 @@ a .day-number.holiday{
     min-width:0 !important;
 }
 
-.mobile-month-nav{
+.st-key-mobile_month_nav{
     display:none;
 }
 
@@ -1347,6 +1347,14 @@ a .day-number.holiday{
         overflow-x:hidden !important;
     }
 
+    html,
+    body,
+    #root,
+    [data-testid="stAppViewContainer"]{
+        background:#ffffff !important;
+        color-scheme:light !important;
+    }
+
     html, body{
         overscroll-behavior-x:none;
         touch-action:pan-y;
@@ -1359,7 +1367,7 @@ a .day-number.holiday{
     }
 
     .block-container{
-        padding-top:1.15rem !important;
+        padding-top:1.55rem !important;
         padding-bottom:2.5rem;
         padding-left:.7rem !important;
         padding-right:.7rem !important;
@@ -1377,29 +1385,37 @@ a .day-number.holiday{
 
     /* 모바일 브랜드: 툴바 아래로 숨지 않고 온전히 표시 */
     .brand{
-        min-height:50px;
+        min-height:62px;
         width:100%;
         max-width:100%;
         box-sizing:border-box;
-        padding-top:7px;
-        padding-bottom:5px;
+        padding-top:10px;
+        padding-bottom:8px;
         gap:8px;
         align-items:center;
-        overflow:visible;
+        overflow:visible !important;
     }
     .brand-title{
+        display:block;
         font-size:34px;
-        letter-spacing:-2px;
-        line-height:1.28;
-        padding:2px 0 4px;
+        font-weight:900;
+        letter-spacing:-1.6px;
+        line-height:1.45;
+        padding:4px 0 6px;
+        margin:0;
         white-space:nowrap;
-        overflow:visible;
-        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+        overflow:visible !important;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+        -webkit-font-smoothing:antialiased;
+        text-rendering:geometricPrecision;
     }
     .brand-mark{
+        display:block;
         font-size:29px;
-        line-height:1.15;
+        line-height:1.35;
+        padding:3px 0 5px;
         flex:0 0 auto;
+        overflow:visible !important;
     }
     .brand-sub{font-size:13px;margin-bottom:13px;}
 
@@ -1425,41 +1441,43 @@ a .day-number.holiday{
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
-    /* 모바일 월 이동은 Streamlit 컬럼 대신 3등분 링크로 고정 */
+    /* 모바일 월 이동: 브라우저 링크가 아니라 Streamlit 버튼으로 처리해
+       전체 페이지 재로딩(검은 화면 깜빡임)을 피한다. */
     .st-key-month_nav{
         display:none !important;
     }
-    .mobile-month-nav{
-        display:grid !important;
-        grid-template-columns:repeat(3, minmax(0, 1fr));
-        gap:6px;
-        width:100%;
-        max-width:100%;
-        margin:0 0 8px 0;
-        box-sizing:border-box;
+    .st-key-mobile_month_nav{
+        display:block !important;
+        width:100% !important;
+        max-width:100% !important;
+        margin:0 0 8px 0 !important;
     }
-    .mobile-month-nav a{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        min-width:0;
-        min-height:40px;
-        padding:7px 4px;
-        border:1px solid #d9dadd;
-        border-radius:10px;
-        background:#ffffff;
-        color:#30343a !important;
-        font-size:14px;
-        font-weight:700;
-        line-height:1;
-        text-decoration:none !important;
-        box-sizing:border-box;
+    .st-key-mobile_month_nav [data-testid="stHorizontalBlock"]{
+        display:flex !important;
+        flex-direction:row !important;
+        flex-wrap:nowrap !important;
+        gap:6px !important;
+        width:100% !important;
+        max-width:100% !important;
+    }
+    .st-key-mobile_month_nav [data-testid="column"]{
+        width:33.333% !important;
+        flex:1 1 0 !important;
+        min-width:0 !important;
+        max-width:33.333% !important;
+    }
+    .st-key-mobile_month_nav .stButton,
+    .st-key-mobile_month_nav .stButton > button{
+        width:100% !important;
+    }
+    .st-key-mobile_month_nav .stButton > button{
+        min-height:40px !important;
+        padding:7px 4px !important;
+        border-radius:10px !important;
+        font-size:14px !important;
+        line-height:1 !important;
         touch-action:manipulation;
         -webkit-tap-highlight-color:transparent;
-    }
-    .mobile-month-nav a:active{
-        background:#f7f4ee;
-        border-color:#c7a66e;
     }
 
     /* 모바일 달력: 7열을 유지하면서 한 달을 한눈에 */
@@ -1842,28 +1860,62 @@ with st.container(key="month_nav"):
             st.rerun()
 
 
-# 모바일 전용 월 이동 링크
-prev_year = year
-prev_month = month - 1
-if prev_month == 0:
-    prev_month = 12
-    prev_year -= 1
+# 모바일 전용 월 이동 버튼
+# PC에서는 CSS로 숨기고, 모바일에서는 가로 3등분으로 표시한다.
+# href 링크 대신 st.button을 사용해서 전체 페이지 재로딩을 피한다.
+with st.container(key="mobile_month_nav"):
 
-next_year = year
-next_month = month + 1
-if next_month == 13:
-    next_month = 1
-    next_year += 1
+    m1, m2, m3 = st.columns(3)
 
-mobile_nav_html = (
-    '<div class="mobile-month-nav">'
-    f'<a href="?view={prev_year:04d}-{prev_month:02d}" target="_self">‹ 이전</a>'
-    f'<a href="?date={today.year:04d}-{today.month:02d}-{today.day:02d}" target="_self">오늘</a>'
-    f'<a href="?view={next_year:04d}-{next_month:02d}" target="_self">다음 ›</a>'
-    '</div>'
-)
+    with m1:
+        if st.button(
+            "‹ 이전",
+            key="mobile_prev_month",
+            use_container_width=True,
+        ):
+            new_month = month - 1
+            new_year = year
+            if new_month == 0:
+                new_month = 12
+                new_year -= 1
 
-st.markdown(mobile_nav_html, unsafe_allow_html=True)
+            st.session_state.year = new_year
+            st.session_state.month = new_month
+            st.query_params.clear()
+            st.rerun()
+
+    with m2:
+        if st.button(
+            "오늘",
+            key="mobile_today",
+            use_container_width=True,
+        ):
+            st.session_state.year = today.year
+            st.session_state.month = today.month
+            st.session_state.selected_date = {
+                "year": today.year,
+                "month": today.month,
+                "day": today.day,
+            }
+            st.query_params.clear()
+            st.rerun()
+
+    with m3:
+        if st.button(
+            "다음 ›",
+            key="mobile_next_month",
+            use_container_width=True,
+        ):
+            new_month = month + 1
+            new_year = year
+            if new_month == 13:
+                new_month = 1
+                new_year += 1
+
+            st.session_state.year = new_year
+            st.session_state.month = new_month
+            st.query_params.clear()
+            st.rerun()
 
 
 # =========================================================
