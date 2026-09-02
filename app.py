@@ -163,6 +163,17 @@ if "month" not in st.session_state:
     )
 
 
+# 모바일 월 이동 링크 처리
+query_view = st.query_params.get("view")
+
+if query_view:
+    try:
+        view_date = datetime.strptime(query_view, "%Y-%m")
+        st.session_state.year = view_date.year
+        st.session_state.month = view_date.month
+    except ValueError:
+        pass
+
 year = st.session_state.year
 month = st.session_state.month
 
@@ -1317,6 +1328,10 @@ a .day-number.holiday{
     min-width:0 !important;
 }
 
+.mobile-month-nav{
+    display:none;
+}
+
 @media (max-width:800px){
     /* 모바일에서는 좌우 스크롤을 완전히 막고 세로 스크롤만 사용 */
     html,
@@ -1410,15 +1425,41 @@ a .day-number.holiday{
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
-    /* 이전/오늘/다음은 모바일에서도 한 줄 */
-    .st-key-month_nav [data-testid="stHorizontalBlock"]{
-        gap:6px !important;
+    /* 모바일 월 이동은 Streamlit 컬럼 대신 3등분 링크로 고정 */
+    .st-key-month_nav{
+        display:none !important;
     }
-    .st-key-month_nav .stButton > button{
+    .mobile-month-nav{
+        display:grid !important;
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+        gap:6px;
+        width:100%;
+        max-width:100%;
+        margin:0 0 8px 0;
+        box-sizing:border-box;
+    }
+    .mobile-month-nav a{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        min-width:0;
         min-height:40px;
+        padding:7px 4px;
+        border:1px solid #d9dadd;
+        border-radius:10px;
+        background:#ffffff;
+        color:#30343a !important;
         font-size:14px;
-        padding-left:4px;
-        padding-right:4px;
+        font-weight:700;
+        line-height:1;
+        text-decoration:none !important;
+        box-sizing:border-box;
+        touch-action:manipulation;
+        -webkit-tap-highlight-color:transparent;
+    }
+    .mobile-month-nav a:active{
+        background:#f7f4ee;
+        border-color:#c7a66e;
     }
 
     /* 모바일 달력: 7열을 유지하면서 한 달을 한눈에 */
@@ -1799,6 +1840,30 @@ with st.container(key="month_nav"):
             st.query_params.clear()
 
             st.rerun()
+
+
+# 모바일 전용 월 이동 링크
+prev_year = year
+prev_month = month - 1
+if prev_month == 0:
+    prev_month = 12
+    prev_year -= 1
+
+next_year = year
+next_month = month + 1
+if next_month == 13:
+    next_month = 1
+    next_year += 1
+
+mobile_nav_html = (
+    '<div class="mobile-month-nav">'
+    f'<a href="?view={prev_year:04d}-{prev_month:02d}" target="_self">‹ 이전</a>'
+    f'<a href="?date={today.year:04d}-{today.month:02d}-{today.day:02d}" target="_self">오늘</a>'
+    f'<a href="?view={next_year:04d}-{next_month:02d}" target="_self">다음 ›</a>'
+    '</div>'
+)
+
+st.markdown(mobile_nav_html, unsafe_allow_html=True)
 
 
 # =========================================================
