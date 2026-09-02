@@ -1441,41 +1441,48 @@ a .day-number.holiday{
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
-    /* 모바일 월 이동은 Streamlit 컬럼 대신 3등분 링크로 고정 */
+    /* 모바일 월 이동: Streamlit 버튼을 그대로 쓰되 한 줄 3등분으로 고정
+       -> 링크 전체 페이지 재로딩을 피해서 검은 깜빡임을 크게 줄임 */
     .st-key-month_nav{
-        display:none !important;
+        display:block !important;
+        width:100% !important;
+        max-width:100% !important;
+        overflow:hidden !important;
+        margin:0 0 8px 0 !important;
     }
-    .mobile-month-nav{
-        display:grid !important;
-        grid-template-columns:repeat(3, minmax(0, 1fr));
-        gap:6px;
-        width:100%;
-        max-width:100%;
-        margin:0 0 8px 0;
-        box-sizing:border-box;
+    .st-key-month_nav [data-testid="stHorizontalBlock"]{
+        display:flex !important;
+        flex-direction:row !important;
+        flex-wrap:nowrap !important;
+        gap:6px !important;
+        width:100% !important;
+        max-width:100% !important;
+        align-items:stretch !important;
     }
-    .mobile-month-nav a{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        min-width:0;
-        min-height:40px;
-        padding:7px 4px;
-        border:1px solid #d9dadd;
-        border-radius:10px;
-        background:#ffffff;
-        color:#30343a !important;
-        font-size:14px;
-        font-weight:700;
-        line-height:1;
-        text-decoration:none !important;
-        box-sizing:border-box;
+    .st-key-month_nav [data-testid="column"]{
+        width:calc((100% - 12px) / 3) !important;
+        max-width:calc((100% - 12px) / 3) !important;
+        min-width:0 !important;
+        flex:0 0 calc((100% - 12px) / 3) !important;
+    }
+    .st-key-month_nav [data-testid="stButton"],
+    .st-key-month_nav .stButton{
+        width:100% !important;
+        min-width:0 !important;
+    }
+    .st-key-month_nav .stButton > button{
+        width:100% !important;
+        min-width:0 !important;
+        min-height:40px !important;
+        padding:7px 4px !important;
+        font-size:14px !important;
+        line-height:1 !important;
+        white-space:nowrap !important;
         touch-action:manipulation;
         -webkit-tap-highlight-color:transparent;
     }
-    .mobile-month-nav a:active{
-        background:#f7f4ee;
-        border-color:#c7a66e;
+    .mobile-month-nav{
+        display:none !important;
     }
 
     /* 모바일 달력: 7열을 유지하면서 한 달을 한눈에 */
@@ -1809,8 +1816,6 @@ with st.container(key="month_nav"):
 
             st.query_params.clear()
 
-            st.rerun()
-
     with n2:
 
         if st.button(
@@ -1832,9 +1837,10 @@ with st.container(key="month_nav"):
                 "day": today.day,
             }
 
-            st.query_params.clear()
+            year = today.year
+            month = today.month
 
-            st.rerun()
+            st.query_params.clear()
 
     with n3:
 
@@ -1854,32 +1860,6 @@ with st.container(key="month_nav"):
             st.session_state.month = month
 
             st.query_params.clear()
-
-            st.rerun()
-
-
-# 모바일 전용 월 이동 링크
-prev_year = year
-prev_month = month - 1
-if prev_month == 0:
-    prev_month = 12
-    prev_year -= 1
-
-next_year = year
-next_month = month + 1
-if next_month == 13:
-    next_month = 1
-    next_year += 1
-
-mobile_nav_html = (
-    '<div class="mobile-month-nav">'
-    f'<a href="?view={prev_year:04d}-{prev_month:02d}" target="_self">‹ 이전</a>'
-    f'<a href="?date={today.year:04d}-{today.month:02d}-{today.day:02d}" target="_self">오늘</a>'
-    f'<a href="?view={next_year:04d}-{next_month:02d}" target="_self">다음 ›</a>'
-    '</div>'
-)
-
-st.markdown(mobile_nav_html, unsafe_allow_html=True)
 
 
 # =========================================================
