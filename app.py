@@ -1295,18 +1295,121 @@ a .day-number.holiday{
 .story-card{box-shadow:0 2px 10px rgba(20,28,38,.025);}
 .memo-head{padding-top:2px;}
 
+/* 달력은 Streamlit columns 대신 순수 CSS 7열 그리드로 유지 */
+.weekday-grid,
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7, minmax(0, 1fr));
+    gap:12px;
+}
+
+.weekday-grid{
+    margin-top:2px;
+}
+
+.st-key-month_nav [data-testid="stHorizontalBlock"]{
+    flex-wrap:nowrap !important;
+}
+
+.st-key-month_nav [data-testid="column"]{
+    width:33.333% !important;
+    flex:1 1 0 !important;
+    min-width:0 !important;
+}
+
 @media (max-width:800px){
     .block-container{padding-top:.8rem;padding-bottom:2.5rem;}
-    .brand-title{font-size:34px;letter-spacing:-2px;}
-    .brand-mark{font-size:29px;}
+
+    /* 모바일 브랜드: 한글 상단 잘림 방지 */
+    .brand{
+        min-height:46px;
+        padding-top:5px;
+        padding-bottom:3px;
+        gap:8px;
+        align-items:center;
+    }
+    .brand-title{
+        font-size:34px;
+        letter-spacing:-2px;
+        line-height:1.28;
+        padding:2px 0 4px;
+        white-space:nowrap;
+        overflow:visible;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+    }
+    .brand-mark{
+        font-size:29px;
+        line-height:1.15;
+        flex:0 0 auto;
+    }
     .brand-sub{font-size:13px;margin-bottom:13px;}
+
     .hero{margin-bottom:16px;}
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
-    .week-title{font-size:12px;}
-    .calendar-card{height:76px;border-radius:9px;padding:6px;}
-    .day-number{font-size:15px;}
+
+    /* 이전/오늘/다음은 모바일에서도 한 줄 */
+    .st-key-month_nav [data-testid="stHorizontalBlock"]{
+        gap:6px !important;
+    }
+    .st-key-month_nav .stButton > button{
+        min-height:40px;
+        font-size:14px;
+        padding-left:4px;
+        padding-right:4px;
+    }
+
+    /* 모바일 달력: 7열을 유지하면서 한 달을 한눈에 */
+    .weekday-grid,
+    .calendar-grid{
+        gap:3px;
+    }
+    .week-title{
+        font-size:12px;
+        padding-top:4px;
+        padding-bottom:6px;
+    }
+    .calendar-card{
+        height:64px;
+        min-width:0;
+        border-radius:8px;
+        padding:4px;
+    }
+    .day-top{
+        min-height:16px;
+        gap:1px;
+    }
+    .day-number{
+        font-size:14px;
+        line-height:1;
+    }
+    .day-icons{
+        min-height:10px;
+        max-width:26px;
+        overflow:hidden;
+        font-size:8px;
+        line-height:1;
+        gap:1px;
+        justify-content:flex-end;
+    }
+    .korea-flag{
+        width:11px;
+        height:7px;
+    }
+    .calendar-moon{
+        font-size:13px;
+        line-height:1;
+        margin-top:0;
+    }
+    .lunar{
+        font-size:7px;
+        line-height:1;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:clip;
+    }
     .holiday-name{display:none;}
+
     .detail-shell{padding:18px 15px;border-radius:14px;}
     .detail-date{font-size:28px;}
     .day-meaning{gap:7px;padding:11px;}
@@ -1554,77 +1657,76 @@ st.markdown(
 # 월 이동
 # =========================================================
 
-n1, n2, n3 = st.columns(3)
+with st.container(key="month_nav"):
 
+    n1, n2, n3 = st.columns(3)
 
-with n1:
+    with n1:
 
-    if st.button(
-        "‹ 이전",
-        use_container_width=True,
-    ):
+        if st.button(
+            "‹ 이전",
+            use_container_width=True,
+        ):
 
-        month -= 1
+            month -= 1
 
-        if month == 0:
+            if month == 0:
 
-            month = 12
-            year -= 1
+                month = 12
+                year -= 1
 
-        st.session_state.year = year
-        st.session_state.month = month
+            st.session_state.year = year
+            st.session_state.month = month
 
-        st.query_params.clear()
+            st.query_params.clear()
 
-        st.rerun()
+            st.rerun()
 
+    with n2:
 
-with n2:
+        if st.button(
+            "오늘",
+            use_container_width=True,
+        ):
 
-    if st.button(
-        "오늘",
-        use_container_width=True,
-    ):
+            st.session_state.year = (
+                today.year
+            )
 
-        st.session_state.year = (
-            today.year
-        )
+            st.session_state.month = (
+                today.month
+            )
 
-        st.session_state.month = (
-            today.month
-        )
+            st.session_state.selected_date = {
+                "year": today.year,
+                "month": today.month,
+                "day": today.day,
+            }
 
-        st.session_state.selected_date = {
-            "year": today.year,
-            "month": today.month,
-            "day": today.day,
-        }
+            st.query_params.clear()
 
-        st.query_params.clear()
+            st.rerun()
 
-        st.rerun()
+    with n3:
 
+        if st.button(
+            "다음 ›",
+            use_container_width=True,
+        ):
 
-with n3:
+            month += 1
 
-    if st.button(
-        "다음 ›",
-        use_container_width=True,
-    ):
+            if month == 13:
 
-        month += 1
+                month = 1
+                year += 1
 
-        if month == 13:
+            st.session_state.year = year
+            st.session_state.month = month
 
-            month = 1
-            year += 1
+            st.query_params.clear()
 
-        st.session_state.year = year
-        st.session_state.month = month
-
-        st.query_params.clear()
-
-        st.rerun()
+            st.rerun()
 
 
 # =========================================================
@@ -1713,39 +1815,28 @@ weekdays = [
     "일",
 ]
 
+weekday_html = []
 
-weekday_cols = st.columns(7)
+for i, name in enumerate(weekdays):
 
+    cls = ""
 
-for i, (
-    col,
-    name
-) in enumerate(
-    zip(
-        weekday_cols,
-        weekdays,
+    if i == 5:
+        cls = "week-sat"
+
+    elif i == 6:
+        cls = "week-sun"
+
+    weekday_html.append(
+        f'<div class="week-title {cls}">{name}</div>'
     )
-):
 
-    with col:
-
-        cls = ""
-
-        if i == 5:
-            cls = "week-sat"
-
-        elif i == 6:
-            cls = "week-sun"
-
-        st.markdown(
-            (
-                f'<div '
-                f'class="week-title {cls}">'
-                f'{name}'
-                f'</div>'
-            ),
-            unsafe_allow_html=True,
-        )
+st.markdown(
+    '<div class="weekday-grid">'
+    + "".join(weekday_html)
+    + '</div>',
+    unsafe_allow_html=True,
+)
 
 
 # =========================================================
@@ -1756,7 +1847,6 @@ cal = calendar.Calendar(
     firstweekday=0,
 )
 
-
 weeks = (
     cal.monthdayscalendar(
         year,
@@ -1764,291 +1854,205 @@ weeks = (
     )
 )
 
-
 selected_date = (
     st.session_state.get(
         "selected_date"
     )
 )
 
+calendar_cells = []
 
 for week in weeks:
 
-    cols = st.columns(7)
+    for weekday_index, day in enumerate(week):
 
-    for weekday_index, (
-        col,
-        day
-    ) in enumerate(
-        zip(
-            cols,
-            week,
+        if day == 0:
+
+            calendar_cells.append(
+                '<div class="calendar-card empty"></div>'
+            )
+
+            continue
+
+        # 음력
+        lunar = solar_to_lunar(
+            year,
+            month,
+            day,
         )
-    ):
 
-        with col:
+        lunar_text = (
+            f"음 "
+            f"{lunar['month']}."
+            f"{lunar['day']}"
+        )
 
-            if day == 0:
+        if lunar["is_leap"]:
+            lunar_text += " 윤"
 
-                st.markdown(
-                    (
-                        '<div '
-                        'class="calendar-card empty">'
-                        '</div>'
-                    ),
-                    unsafe_allow_html=True,
-                )
+        # 손 없는 날
+        good_day = is_sonnal(
+            lunar["day"]
+        )
 
-                continue
+        # 오늘
+        is_today = (
+            year == today.year
+            and month == today.month
+            and day == today.day
+        )
 
+        # 역사
+        korea = get_korea_history(
+            month,
+            day,
+        )
 
-            # 음력
+        world = get_world_history(
+            month,
+            day,
+        )
 
-            lunar = solar_to_lunar(
+        # 하늘
+        sky = get_sky_info(
+            year,
+            month,
+            day,
+        )
+
+        moon = sky["moon"]
+
+        # 절기
+        solar_term = (
+            get_solar_term_info(
                 year,
                 month,
                 day,
+            )["today"]
+        )
+
+        # 기념일
+        anniversaries = get_anniversaries(
+            year,
+            month,
+            day,
+        )
+
+        # 공휴일
+        public_holiday = get_public_holiday_info(
+            year,
+            month,
+            day,
+        )
+
+        # 메모
+        date_key = (
+            f"{year:04d}-"
+            f"{month:02d}-"
+            f"{day:02d}"
+        )
+
+        memo_exists = (
+            has_memo(
+                date_key
             )
+        )
 
+        # 아이콘
+        icons = []
 
-            lunar_text = (
-                f"음 "
-                f"{lunar['month']}."
-                f"{lunar['day']}"
-            )
-
-
-            if lunar["is_leap"]:
-                lunar_text += " 윤"
-
-
-            # 손 없는 날
-
-            good_day = is_sonnal(
-                lunar["day"]
-            )
-
-
-            # 오늘
-
-            is_today = (
-                year == today.year
-                and month == today.month
-                and day == today.day
-            )
-
-
-            # 역사
-
-            korea = get_korea_history(
-                month,
-                day,
-            )
-
-
-            world = get_world_history(
-                month,
-                day,
-            )
-
-
-            # 하늘
-
-            sky = get_sky_info(
-                year,
-                month,
-                day,
-            )
-
-            moon = sky["moon"]
-
-
-            # 절기
-
-            solar_term = (
-                get_solar_term_info(
-                    year,
-                    month,
-                    day,
-                )["today"]
-            )
-
-
-            # 기념일
-
-            anniversaries = get_anniversaries(
-                year,
-                month,
-                day,
-            )
-
-
-            # 공휴일
-
-            public_holiday = get_public_holiday_info(
-                year,
-                month,
-                day,
-            )
-
-
-            # 메모
-
-            date_key = (
-                f"{year:04d}-"
-                f"{month:02d}-"
-                f"{day:02d}"
-            )
-
-
-            memo_exists = (
-                has_memo(
-                    date_key
+        if (
+            korea
+            and KOREA_FLAG_DATA
+        ):
+            icons.append(
+                (
+                    f'<img '
+                    f'src="{KOREA_FLAG_DATA}" '
+                    f'class="korea-flag">'
                 )
             )
 
+        if world:
+            icons.append("🌍")
 
-            # 아이콘
+        if solar_term:
+            icons.append("🌿")
 
-            icons = []
+        if anniversaries:
+            icons.append("🎗️")
 
+        if public_holiday:
+            icons.append("🔴")
 
+        if good_day:
+            icons.append("⭐")
+
+        if memo_exists:
+            icons.append("📝")
+
+        # 날짜 숫자 색상
+        # 공휴일 정보가 있거나 일요일이면 빨강 / 토요일 파랑 / 평일 검정
+        if public_holiday or weekday_index == 6:
+            number_class = "red-day"
+        elif weekday_index == 5:
+            number_class = "saturday-day"
+        else:
+            number_class = "weekday-day"
+
+        # 카드 클래스
+        card_class = "calendar-card"
+
+        if is_today:
+            card_class += " today"
+
+        if solar_term:
+            card_class += " term-day"
+
+        if selected_date:
             if (
-                korea
-                and KOREA_FLAG_DATA
+                selected_date["year"] == year
+                and selected_date["month"] == month
+                and selected_date["day"] == day
             ):
+                card_class += " selected"
 
-                icons.append(
-                    (
-                        f'<img '
-                        f'src="{KOREA_FLAG_DATA}" '
-                        f'class="korea-flag">'
-                    )
-                )
+        click_url = (
+            f"?date="
+            f"{year:04d}-"
+            f"{month:02d}-"
+            f"{day:02d}"
+        )
 
+        card_html = (
+            f'<div class="{card_class}">'
+            f'<a class="calendar-card-link" '
+            f'href="{click_url}" target="_self" '
+            f'aria-label="{year}년 {month}월 {day}일"></a>'
+            '<div class="day-top">'
+            f'<div class="day-number {number_class}">{day}</div>'
+            f'<div class="day-icons">{"".join(icons)}</div>'
+            '</div>'
+            f'<div class="calendar-moon">{moon["icon"]}</div>'
+            f'<div class="lunar">{lunar_text}</div>'
+            f'{(
+                "<div class=\"holiday-name\">"
+                + public_holiday.get("emoji", "🔴")
+                + " "
+                + public_holiday.get("name", "")
+                + "</div>"
+            ) if public_holiday else ""}'
+            '</div>'
+        )
 
-            if world:
-                icons.append("🌍")
+        calendar_cells.append(card_html)
 
-
-            if solar_term:
-                icons.append("🌿")
-
-
-            if anniversaries:
-                icons.append("🎗️")
-
-
-            if public_holiday:
-                icons.append("🔴")
-
-
-            if good_day:
-                icons.append("⭐")
-
-
-            if memo_exists:
-                icons.append("📝")
-
-
-            # 날짜 숫자 색상
-            # 공휴일 정보가 있거나 일요일이면 빨강 / 토요일 파랑 / 평일 검정
-            # is_red_calendar_day() 결과에 의존하지 않고 현재 화면의 공휴일 판정값을 직접 사용
-            if public_holiday or weekday_index == 6:
-                number_class = "red-day"
-            elif weekday_index == 5:
-                number_class = "saturday-day"
-            else:
-                number_class = "weekday-day"
-
-
-            # 카드 클래스
-
-            card_class = (
-                "calendar-card"
-            )
-
-
-            if is_today:
-                card_class += " today"
-
-
-            if solar_term:
-                card_class += " term-day"
-
-
-            if selected_date:
-
-                if (
-                    selected_date["year"] == year
-                    and
-                    selected_date["month"] == month
-                    and
-                    selected_date["day"] == day
-                ):
-
-                    card_class += (
-                        " selected"
-                    )
-
-
-            click_url = (
-                f"?date="
-                f"{year:04d}-"
-                f"{month:02d}-"
-                f"{day:02d}"
-            )
-
-
-            card_html = (
-                f'<div '
-                f'class="{card_class}">'
-
-                f'<a '
-                f'class="calendar-card-link" '
-                f'href="{click_url}" '
-                f'target="_self" '
-                f'aria-label="{year}년 {month}월 {day}일"></a>'
-
-                '<div class="day-top">'
-
-                f'<div '
-                f'class="day-number {number_class}">'
-                f'{day}'
-                f'</div>'
-
-                f'<div '
-                f'class="day-icons">'
-                f'{"".join(icons)}'
-                f'</div>'
-
-                '</div>'
-
-                f'<div '
-                f'class="calendar-moon">'
-                f'{moon["icon"]}'
-                f'</div>'
-
-                f'<div class="lunar">'
-                f'{lunar_text}'
-                f'</div>'
-
-                f'{(
-                    "<div class=\"holiday-name\">"
-                    + public_holiday.get("emoji", "🔴")
-                    + " "
-                    + public_holiday.get("name", "")
-                    + "</div>"
-                ) if public_holiday else ""}'
-
-                '</div>'
-            )
-
-
-            st.markdown(
-                card_html,
-                unsafe_allow_html=True,
-            )
+st.markdown(
+    '<div class="calendar-grid">'
+    + "".join(calendar_cells)
+    + '</div>',
+    unsafe_allow_html=True,
+)
 
 
 # =========================================================
