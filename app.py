@@ -52,7 +52,7 @@ from memo_db import (
 
 st.set_page_config(
     page_title="날담",
-    page_icon="🌙",
+    page_icon="static/naldam-192.png",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
