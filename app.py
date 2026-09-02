@@ -1318,15 +1318,59 @@ a .day-number.holiday{
 }
 
 @media (max-width:800px){
-    .block-container{padding-top:.8rem;padding-bottom:2.5rem;}
+    /* 모바일에서는 좌우 스크롤을 완전히 막고 세로 스크롤만 사용 */
+    html,
+    body,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stMain"],
+    .stMain,
+    .block-container{
+        width:100% !important;
+        max-width:100vw !important;
+        min-width:0 !important;
+        box-sizing:border-box !important;
+        overflow-x:hidden !important;
+    }
 
-    /* 모바일 브랜드: 한글 상단 잘림 방지 */
+    html, body{
+        overscroll-behavior-x:none;
+        touch-action:pan-y;
+    }
+
+    /* 설치형 화면에서 상단 Streamlit 툴바가 날담을 가리는 문제 방지 */
+    [data-testid="stHeader"],
+    header[data-testid="stHeader"]{
+        display:none !important;
+    }
+
+    .block-container{
+        padding-top:1.15rem !important;
+        padding-bottom:2.5rem;
+        padding-left:.7rem !important;
+        padding-right:.7rem !important;
+    }
+
+    /* 일반 컬럼은 화면 폭을 넘기지 않게 한다 */
+    [data-testid="stHorizontalBlock"]{
+        max-width:100% !important;
+        min-width:0 !important;
+    }
+    [data-testid="column"]{
+        min-width:0 !important;
+        max-width:100% !important;
+    }
+
+    /* 모바일 브랜드: 툴바 아래로 숨지 않고 온전히 표시 */
     .brand{
-        min-height:46px;
-        padding-top:5px;
-        padding-bottom:3px;
+        min-height:50px;
+        width:100%;
+        max-width:100%;
+        box-sizing:border-box;
+        padding-top:7px;
+        padding-bottom:5px;
         gap:8px;
         align-items:center;
+        overflow:visible;
     }
     .brand-title{
         font-size:34px;
@@ -1345,6 +1389,24 @@ a .day-number.holiday{
     .brand-sub{font-size:13px;margin-bottom:13px;}
 
     .hero{margin-bottom:16px;}
+
+    .hero,
+    .detail-shell,
+    .day-meaning,
+    .story-card,
+    .legend,
+    .month-title{
+        width:100%;
+        max-width:100%;
+        min-width:0;
+        box-sizing:border-box;
+        overflow-wrap:anywhere;
+    }
+
+    .legend{
+        white-space:normal;
+        overflow:hidden;
+    }
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
@@ -1362,7 +1424,13 @@ a .day-number.holiday{
     /* 모바일 달력: 7열을 유지하면서 한 달을 한눈에 */
     .weekday-grid,
     .calendar-grid{
+        width:100% !important;
+        max-width:100% !important;
+        min-width:0 !important;
+        box-sizing:border-box;
+        grid-template-columns:repeat(7, minmax(0, 1fr)) !important;
         gap:3px;
+        overflow:hidden;
     }
     .week-title{
         font-size:12px;
@@ -1370,10 +1438,14 @@ a .day-number.holiday{
         padding-bottom:6px;
     }
     .calendar-card{
+        width:100% !important;
+        max-width:100% !important;
         height:64px;
-        min-width:0;
+        min-width:0 !important;
+        box-sizing:border-box;
         border-radius:8px;
         padding:4px;
+        overflow:hidden;
     }
     .day-top{
         min-height:16px;
