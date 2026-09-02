@@ -1441,9 +1441,9 @@ a .day-number.holiday{
     .month-title{font-size:26px;margin-top:12px;}
     .legend{font-size:10px;line-height:1.9;margin-bottom:9px;}
 
-    /* 모바일 월 이동: 실제 Streamlit 버튼 3개를 한 줄 3등분으로 고정.
-       링크 이동이 아니므로 브라우저 전체 재로딩/검은 깜빡임을 피한다. */
-    [data-testid="stHorizontalBlock"]:has(.month-nav-marker){
+    /* 모바일 월 이동: month_nav 컨테이너 자체를 기준으로 정확히 3등분.
+       보이지 않는 마커를 없애서 첫 번째 버튼만 아래로 밀리는 현상도 제거한다. */
+    .st-key-month_nav [data-testid="stHorizontalBlock"]{
         display:flex !important;
         flex-direction:row !important;
         flex-wrap:nowrap !important;
@@ -1454,30 +1454,48 @@ a .day-number.holiday{
         overflow:visible !important;
         margin:0 0 8px 0 !important;
     }
-    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) > [data-testid="stColumn"]{
+    .st-key-month_nav [data-testid="stHorizontalBlock"] > [data-testid="stColumn"],
+    .st-key-month_nav [data-testid="stHorizontalBlock"] > [data-testid="column"]{
         width:calc((100% - 12px) / 3) !important;
         max-width:calc((100% - 12px) / 3) !important;
         min-width:0 !important;
         flex:0 0 calc((100% - 12px) / 3) !important;
+        align-self:stretch !important;
     }
-    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) [data-testid="stButton"],
-    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) .stButton{
+    .st-key-month_nav [data-testid="stButton"],
+    .st-key-month_nav .stButton{
         width:100% !important;
         min-width:0 !important;
+        margin:0 !important;
     }
-    [data-testid="stHorizontalBlock"]:has(.month-nav-marker) .stButton > button{
+    .st-key-month_nav .stButton > button{
         width:100% !important;
         min-width:0 !important;
+        height:40px !important;
         min-height:40px !important;
-        padding:7px 4px !important;
+        margin:0 !important;
+        padding:0 4px !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
         font-size:14px !important;
         line-height:1 !important;
+        color:#1e2530 !important;
+        background:#ffffff !important;
+        opacity:1 !important;
         white-space:nowrap !important;
         touch-action:manipulation;
         -webkit-tap-highlight-color:transparent;
     }
-    .month-nav-marker{
-        display:none !important;
+    .st-key-month_nav .stButton > button p,
+    .st-key-month_nav .stButton > button span{
+        color:#1e2530 !important;
+        opacity:1 !important;
+        margin:0 !important;
+        padding:0 !important;
+        line-height:1 !important;
+        font-size:14px !important;
+        font-weight:700 !important;
     }
     .mobile-month-nav{
         display:none !important;
@@ -1796,8 +1814,6 @@ with st.container(key="month_nav"):
     n1, n2, n3 = st.columns(3)
 
     with n1:
-
-        st.markdown('<span class="month-nav-marker"></span>', unsafe_allow_html=True)
 
         if st.button(
             "‹ 이전",
